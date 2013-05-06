@@ -1,0 +1,17 @@
+{
+  "name": "tags.js",
+  "version": "0.5.0",
+  "main": "tags.js",
+  "description": "Simple, Fast & Extensible Markup Language Parsing and Rendering",
+  "homepage": "https://github.com/lehni/tags.js",
+  "license": "MIT",
+  "author": {
+    "name": "Jürg Lehni",
+    "email": "juerg@lehni.org",
+    "url": "http://lehni.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lehni/tags.js"
+  }
+}
