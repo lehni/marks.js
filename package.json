@@ -1,5 +1,5 @@
 {
-  "name": "tags.js",
+  "name": "tags-js",
   "version": "0.5.0",
   "main": "tags.js",
   "description": "Simple, Fast & Extensible Markup Language Parsing and Rendering",
