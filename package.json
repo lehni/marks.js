@@ -8,5 +8,5 @@
 	"homepage": "https://github.com/lehni/marks.js",
 	"repository": "git://github.com/lehni/marks.js",
     "bugs": "https://github.com/lehni/marks.js/issues",
-	"keywords": ["tags" "markup", "parsing", "dom", "rendering"]  
+	"keywords": ["tags", "markup", "parsing", "dom", "rendering"]  
 }
