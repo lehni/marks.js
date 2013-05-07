@@ -1,5 +1,5 @@
 /*
- * tags.js - Simple, Fast & Extensible Markup Language Parsing and Rendering
+ * marks.js - Simple, fast & extensible markup parsing, traversing & rendering.
  *
  * Copyright (c) 2008 - 2013, Juerg Lehni
  * http://lehni.org/
@@ -407,4 +407,4 @@ exports.register({
 	}
 });
 
-})(typeof exports !== 'undefined' ? exports : this.tags = {});
+})(typeof exports !== 'undefined' ? exports : this.marks = {});

@@ -3,18 +3,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Example</title>
-<script type="text/javascript" src="tags.js"></script>
+<script type="text/javascript" src="marks.js"></script>
 <script type="text/javascript">
 
 // Register encoders
-tags.encode({
+marks.encode({
     js: function(str) {
         return str ? (str = JSON.stringify(str)).substring(1, str.length - 1) : str;
     }
 })
 
-// Register custom tags
-tags.register({
+// Register custom marks
+marks.register({
     bold: function(content) {
         return '<b>' + content + '</b>';
     },
@@ -32,7 +32,7 @@ tags.register({
     }
 });
 
-var root = tags.parse('<image url="image.png" 100 200 /><bold>Hello \"world\"</bold>');
+var root = marks.parse('<image url="image.png" 100 200 /><bold>Hello \"world\"</bold>');
 console.log(root.render({ encoding: 'js' }));
 </script>
 </head>

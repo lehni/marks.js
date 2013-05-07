@@ -1,6 +1,6 @@
-## tags.js
+## marks.js
 
-Simple, Fast & Extensible Markup Language Parsing and Rendering.
+Simple, fast & extensible markup parsing, traversing & rendering.
 
 Copyright © 2008 - 2013, Jürg Lehni.
 

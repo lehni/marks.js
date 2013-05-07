@@ -1,11 +1,12 @@
 {
-	"name": "tags-js",
+	"name": "marks",
 	"version": "0.5.0",
-	"main": "tags.js",
-	"description": "Simple, Fast & Extensible Markup Language Parsing and Rendering",
-	"homepage": "https://github.com/lehni/tags.js",
-	"license": "MIT",
-	"author": "Jürg Lehni <juerg@lehni.org> (http://lehni.org)",
-	"repository": "git://github.com/lehni/tags.js",
-	"keywords": ["tags", "markup", "parsing"]  
+	"main": "marks.js",
+	"description": "Simple, fast & extensible markup parsing, traversing & rendering.",
+    "author": "Jürg Lehni <juerg@lehni.org> (http://lehni.org)",
+    "license": "MIT",
+	"homepage": "https://github.com/lehni/marks.js",
+	"repository": "git://github.com/lehni/marks.js",
+    "bugs": "https://github.com/lehni/marks.js/issues",
+	"keywords": ["tags" "markup", "parsing", "dom", "rendering"]  
 }
