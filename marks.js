@@ -11,7 +11,7 @@
 
 (function(exports) {
 'use strict';
-exports.version = '0.5.0';
+exports.version = '1.0.0';
 
 var contexts = {};
 var encoders = {
