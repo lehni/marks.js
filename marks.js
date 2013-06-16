@@ -163,6 +163,7 @@ function Node(name, entry) {
 	// Copy over functions so they can be called directly on the object.
 	this.initialize = entry.initialize;
 	this.render = entry.render;
+	this.encoder = entry.encoder;
 }
 
 Node.prototype = {
@@ -175,8 +176,9 @@ Node.prototype = {
 			if (node.rendered)
 				return node.rendered;
 			// This is a tag, render its children first into one content
-			// string
-			var content = node.renderChildren(options, encoder);
+			// string. If the tag specifies an encoder, use it instead
+			// of the global one.
+			var content = node.renderChildren(options, node.encoder || encoder);
 			// Now render the tag itself and place it in the resulting
 			// buffer
 			return node.rendered = node.render(content, options, encoder,
