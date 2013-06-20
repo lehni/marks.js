@@ -11,31 +11,39 @@
 
 (function(exports) {
 'use strict';
-exports.version = '1.0.0';
+exports.version = '1.1.0';
 
 var contexts = {};
 
-exports.register = function(tags, entry) {
+exports.register = function(tags, description) {
 	if (typeof tags === 'object') {
 		for (var key in tags)
 			this.register(key, tags[key]);
 	} else {
 		// Allow simple form of only defining a render function
-		if (typeof entry === 'function')
-			entry = { render: entry };
+		if (typeof description === 'function')
+			description = { render: description };
 		// Parse attributes definition through the same tag parsing
 		// mechanism that Node is using. Node.parse contains
 		// special logic to produce an info object for attribute / argument
 		// parsing further down in Node.create().
-		var attributes = entry.attributes = entry.attributes
-					? Node.parse(entry.attributes, null, true)
+		var attributes = description.attributes = description.attributes
+					? Node.parse(description.attributes, null, true)
 					: null;
-		// Create lookup per tag name for entry to be used.
-		var context = entry.context || 'default';
+		// Create lookup per tag name for description to be used.
+		var context = description.context || 'default';
 		context = contexts[context] = contexts[context] || {};
 		tags = tags.split(',');
+		// Create and register a new sub-class of Node, and copy over all fields
+		// from description to its prototype.
+		var proto = new Node();
+		for (var i in description)
+			if (description.hasOwnProperty(i))
+				proto[i] = description[i];
+		var ctor = function() {};
+		ctor.prototype = proto;
 		for (var i = 0; i < tags.length; i++)
-			context[tags[i]] = entry;
+			context[tags[i]] = ctor;
 	}
 };
 
@@ -143,12 +151,7 @@ exports.render = function(text, options) {
 	return root && root.render(options) || '';
 };
 
-function Node(name, entry) {
-	this.name = name;
-	this.entry = entry;
-	// Copy over functions so they can be called directly on the object.
-	this.initialize = entry.initialize;
-	this.render = entry.render;
+function Node() {
 }
 
 Node.prototype = {
@@ -233,15 +236,10 @@ Node.prototype = {
 };
 
 Node.create = function(definition, parent, options) {
-	// Parse tag definition for attributes (named)
-	// and values (unnamed).
-	var tag = definition === 'root'
-			? new Node('root',
-					contexts[options && options.context || 'default']['root']
-					|| contexts['default']['root'])
-			: Node.parse(definition, options);
-	tag.parent = parent;
+	// Parse tag definition for attributes (named) and values (unnamed).
+	var tag = Node.parse(definition, options);
 	tag.definition = definition;
+	tag.parent = parent;
 	tag.nodes = [];
 	// Setup children list, and previous / next references
 	tag.children = [];
@@ -263,6 +261,12 @@ Node.create = function(definition, parent, options) {
 // attributes definitions, in which case collectAttributes  is set to true and
 // the method collects different information, see bellow.
 Node.parse = function(definition, options, collectAttributes) {
+	if (definition === 'root') {
+		var obj = new (contexts[options && options.context || 'default']['root']
+				|| contexts['default']['root'])();
+		obj.name = definition;
+		return obj;	
+	}
 	// When collectAttributes is true, list holds the array of attribute
 	// definitions and lookup the lowercase attribute name lookup table.
 	var name = null;
@@ -270,7 +274,8 @@ Node.parse = function(definition, options, collectAttributes) {
 	var attribute = null;
 	var attributes = {};
 	var lookup = {};
-	var entry;
+	var tag;
+	var proto;
 	// Match either name= parts, string parts (supporting both ' and ", and 
 	// escaped quotes inside), and pure value parts (in collectAttributes mode
 	// these can also be attribute names without default values):
@@ -303,21 +308,29 @@ Node.parse = function(definition, options, collectAttributes) {
 				if (lower !== attribute)
 					lookup[lower] = attribute;
 			} else {
-				// Normal tag parsing: Find tag name, and store named attributes
-				// and unnamed values.
+				// Normal tag parsing: Find tag name, create tag for it and
+				// store named attributes and unnamed values. Merge attributes
+				// definition into it at the end.
 				if (!name) {
 					// The first value is the tag name. Once we know it, we can
-					// determine the entry to be used and from there the attribs
+					// determine the ctor to be used and from there the attribs
 					// definition and name translation lookup.
 					name = value;
 					// Render any undefined tag through the UndefinedTag.
 					var context = options && contexts[options.context]
 							|| contexts['default'];
-					entry = context[name] || contexts['default'][name]
+					// Fetch the contstructor for this tag, and use it to create
+					// the tag object.
+					var ctor = context[name] || contexts['default'][name]
 							|| context['undefined']
 							|| contexts['default']['undefined'];
+					tag = new ctor();
+					tag.name = name;
+					tag.values = list;
+					tag.attributes = attributes;
 					// Now get the attribute name translation lookup:
-					lookup = entry.attributes && entry.attributes.lookup
+					proto = ctor.prototype;
+					lookup = proto.attributes && proto.attributes.lookup
 							|| lookup;
 				} else if (attribute) {
 					// named attribute. Use definition.lookup to translate to
@@ -349,14 +362,10 @@ Node.parse = function(definition, options, collectAttributes) {
 			lookup: lookup
 		} : null;
 	} else {
-		// Normal tag parsing. Create tag out of parsed definition and merge
-		// attributes definition into it.
-		var tag = new Node(name, entry);
-		tag.values = list;
-		tag.attributes = attributes;
-		// Merge attribute definitions with the one from the entry
-		if (entry.attributes)
-			tag.mergeAttributes(entry.attributes);
+		// Normal tag parsing: Merge attribute definitions with the one from
+		// the prototype.
+		if (proto.attributes)
+			tag.mergeAttributes(proto.attributes);
 		return tag;
 	}
 };
