@@ -6,12 +6,9 @@
 <script type="text/javascript" src="marks.js"></script>
 <script type="text/javascript">
 
-// Register encoders
-marks.encode({
-    js: function(str) {
-        return str ? (str = JSON.stringify(str)).substring(1, str.length - 1) : str;
-    }
-})
+function encodeJs(str) {
+    return str ? (str = JSON.stringify(str)).substring(1, str.length - 1) : str;
+}
 
 // Register custom marks
 marks.register({
@@ -33,7 +30,7 @@ marks.register({
 });
 
 var root = marks.parse('<image url="image.png" 100 200 /><bold>Hello \"world\"</bold>');
-console.log(root.render({ encoding: 'js' }));
+console.log(root.render({ encode: encodeJs }));
 </script>
 </head>
 <body>

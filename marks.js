@@ -14,11 +14,6 @@
 exports.version = '1.0.0';
 
 var contexts = {};
-var encoders = {
-	'none': function(value) {
-		return value;
-	}
-};
 
 exports.register = function(tags, entry) {
 	if (typeof tags === 'object') {
@@ -41,15 +36,6 @@ exports.register = function(tags, entry) {
 		tags = tags.split(',');
 		for (var i = 0; i < tags.length; i++)
 			context[tags[i]] = entry;
-	}
-};
-
-exports.encode = function(type, encoder) {
-	if (typeof type === 'object') {
-		for (var key in type)
-			this.encode(key, type[key]);
-	} else {
-		encoders[type] = encoder;
 	}
 };
 
@@ -166,7 +152,7 @@ function Node(name, entry) {
 }
 
 Node.prototype = {
-	renderNode: function(node, options, encoder) {
+	renderNode: function(node, options, encode) {
 		if (node.render && (!options || !options.allowedTags
 				|| options.allowedTags[node.name])) {
 			// Prevent nodes from rendering more than once by caching the
@@ -176,21 +162,21 @@ Node.prototype = {
 				return node.rendered;
 			// This is a tag, render its children first into one content
 			// string
-			var content = node.renderChildren(options, encoder);
+			var content = node.renderChildren(options, encode);
 			// Now render the tag itself and place it in the resulting
 			// buffer
-			return node.rendered = node.render(content, options, encoder,
+			return node.rendered = node.render(content, options, encode,
 					this.nodes[node.index - 1], this.nodes[node.index + 1]);
 		} else {
 			// A simple string. Just encode it
-			return encoder(node);
+			return encode(node);
 		}
 	},
 
-	renderChildren: function(options, encoder, start, end) {
+	renderChildren: function(options, encode, start, end) {
 		var buffer = new Array(this.nodes.length);
 		for (var i = start || 0, l = end || this.nodes.length; i < l; i++) {
-			buffer[i] = this.renderNode(this.nodes[i], options, encoder);
+			buffer[i] = this.renderNode(this.nodes[i], options, encode);
 		}
 		return buffer.join('');
 	},
@@ -381,7 +367,7 @@ Node.parse = function(definition, options, collectAttributes) {
 exports.register({
 	'root': {
 		// The root tag's render function is different as it is used to render
-		// the whole tree and does not receive content or encoder as parameters.
+		// the whole tree and does not receive content or encode as parameters.
 		render: function(options) {
 			if (options && typeof options.allowedTags === 'string') {
 				var names = options.allowedTags.split(',');
@@ -389,20 +375,21 @@ exports.register({
 				for (var i = 0, l = names.length; i < l; i++)
 					allowed[names[i]] = true;
 			}
-			// Determine encoder to be used, default is not encoding anything:
-			var encoder = options && options.encoding
-					&& encoders[options.encoding] || encoders['none'];
-			return this.renderChildren(options, encoder);
+			// Determine the encode function to be used, the default is none
+			var encode = options && options.encode || function(str) {
+				return str;
+			};
+			return this.renderChildren(options, encode);
 		}
 	},
 
 	// Special tag to handle the rendering of all the undefined tags.
 	// By default it renders the markup unmodified, but can be overridden.
 	'undefined': {
-		render: function(content, options, encoder) {
-			return encoder('<' + this.definition) + (content 
-					? encoder('>') + content + encoder('</' + this.name + '>') 
-					: encoder('/>'));
+		render: function(content, options, encode) {
+			return encode('<' + this.definition) + (content 
+					? encode('>') + content + encode('</' + this.name + '>') 
+					: encode('/>'));
 		}
 	}
 });
