@@ -22,7 +22,7 @@ marks.register({
 
     image: {
         attributes: 'url width height border=false',
-        render: function(content, options, encoder, before, after) {
+        render: function(content, options, encode, before, after) {
             return 'image with attributes: '
                     + JSON.stringify(this.attributes);
         }

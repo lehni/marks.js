@@ -11,7 +11,7 @@
 
 (function(exports) {
 'use strict';
-exports.version = '1.1.0';
+exports.version = '1.1.1';
 
 var contexts = {};
 
@@ -151,6 +151,10 @@ exports.render = function(text, options) {
 	return root && root.render(options) || '';
 };
 
+function dontEncode(str) {
+	return str;
+}
+
 function Node() {
 }
 
@@ -163,6 +167,10 @@ Node.prototype = {
 			// selected nodes.
 			if (node.rendered)
 				return node.rendered;
+			// Allow tags to override the encode function. They can also set it
+			// to false, meaning no encoding.
+			if (node.encode !== undefined)
+				encode = node.encode || dontEncode;
 			// This is a tag, render its children first into one content
 			// string
 			var content = node.renderChildren(options, encode);
@@ -385,9 +393,7 @@ exports.register({
 					allowed[names[i]] = true;
 			}
 			// Determine the encode function to be used, the default is none
-			var encode = options && options.encode || function(str) {
-				return str;
-			};
+			var encode = options && options.encode || dontEncode;
 			return this.renderChildren(options, encode);
 		}
 	},
