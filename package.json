@@ -3,7 +3,7 @@
 	"version": "1.1.1",
 	"main": "marks.js",
 	"description": "Simple, fast & extensible markup parsing, traversing & rendering.",
-    "author": "Jürg Lehni <juerg@lehni.org> (http://lehni.org)",
+    "author": "Jürg Lehni <juerg@scratchdisk.com> (http://scratchdisk.com)",
     "license": "MIT",
 	"homepage": "https://github.com/lehni/marks.js",
 	"repository": "git://github.com/lehni/marks.js",
